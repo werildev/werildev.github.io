@@ -1,0 +1,394 @@
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>文档</title>
+  <link href="./css/semantic/semantic.min.css" rel="stylesheet">
+  <link href="./css/markdown.css" rel="stylesheet">
+  <style>
+    body{padding-top:0;background:#f7f7f7}
+    body>.ui.container{width:100%;padding:0}
+    #project-title{background:#6e6e6e;width:100%;line-height:3.572rem;color:#fff;font-size:1.2rem}
+    #project-title .title-wrap{font-weight:700;padding:0 12px;width:100%;max-width:1366px!important;min-width:900px;margin:0 auto}
+    #project-title .left,#project-title right{display:inline-block}
+    #project-title .right{float:right}
+    #project-title .right .wiki-actions .menu{left:auto;right:0;margin-top:.4em!important}
+    #wiki-preview-container{width:100%;max-width:1366px!important;min-width:900px;padding:0;border:1px solid #e3e9ed;border-top:0}
+    #wiki-preview>.ui.segment{margin-top:0;padding:1rem;padding-left:0;border:0}
+    .hover-places{display:inline-block}
+    #page-detail{width:60%;margin:0 auto}
+    #page-detail .title{font-weight:700;font-size:24px;padding:12px 0;border-bottom:1px solid #ccc}
+    #page-detail .content{margin-top:15px}
+    .content p{word-wrap:break-word}
+    #wiki-parent,#wiki-title,#wikis{display:none}
+    .ui.grid{padding:0!important}
+    #ex-all{cursor:pointer;color:#537c8d}
+  </style>
+</head>
+<body>
+  <div class="ui container">
+    <div id="project-title">
+      <div class="title-wrap">
+        <div class="left">
+          <i class="icon eye"></i>
+          文档预览:
+          学习笔记
+        </div>
+        <div class="right">
+          Export by Gitee
+        </div>
+      </div>
+    </div>
+
+    <div class="ui container" id="wiki-preview-container">
+      <div id="wiki-preview">
+        <div class="ui segment">
+          <div id="page-detail" class="markdown-body">
+            <div class='title'>Home</div><div class='content'><p><strong>编码吗？少年</strong> </p>
+</div><div class='title'>AndroidX</div><div class='content'><p>首先你的gradle版本至少为3.2.0以上，以及compileSdkVersion为28以上。</p>
+
+<p>classpath 'com.android.tools.build:gradle:3.2.0+'1</p>
+
+<p>如果你是一个新项目，如果使用AndroidX相关依赖，需要在gradle.properties文件里添加配置：</p>
+
+<p>android.useAndroidX=true
+android.enableJetifier=true</p>
+
+<p>如果你想使用AndroidX，但是之前的不迁移，可以这样配置：</p>
+
+<p>android.useAndroidX=true
+android.enableJetifier=false</p>
+
+<hr>
+
+<p>本文来自 唯鹿 的CSDN 博客 ，全文地址请点击：<a target="_blank" href="https://blog.csdn.net/qq_17766199/article/details/81433706?utm_source=copy">https://blog.csdn.net/qq_17766199/article/details/81433706?utm_source=copy</a> </p>
+</div><div class='title'>springboot部署</div><div class='content'><p>捕获上一个jar程序进程  <code>ps - ef|grep demo01.jar</code></p>
+
+<p>杀掉进程  <code>kill -9 进程号</code></p>
+</div><div class='title'>解析某网站的meta配置信息</div><div class='content'><div class="white"><div class="highlight"><pre>new Thread() {
+                        @Override
+                        public void run() {
+                            Document doc = null;
+//currentUrl为网站链接
+                            try {
+                                doc = Jsoup.connect(currentUrl).ignoreContentType(true).get();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            if (null != doc) {
+                                Elements metas = doc.head().select("meta");
+                                default_title = doc.head().select("title").text();
+
+                                share_title = metas.attr("share_title");
+                                share_url = metas.attr("share_url");
+                                share_image = metas.attr("share_img");
+                                share_desc = metas.attr("share_content");
+                            }
+                        }
+                    }.start();
+</pre></div></div></div><div class='title'>关于无障碍实现QQ名片点赞功能</div><div class='content'><p>1.在mainfeast注册无障碍服务</p>
+<div class="white"><div class="highlight"><pre>&lt;service
+            android:name=".service.AutoOperator"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"&gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name="android.accessibilityservice.AccessibilityService" /&gt;
+            &lt;/intent-filter&gt;
+            &lt;meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/auto_operator" /&gt;
+ &lt;/service&gt;
+</pre></div></div>
+<p>2.配置auto_operator</p>
+<div class="white"><div class="highlight"><pre>&lt;accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+                       android:accessibilityEventTypes="typeWindowStateChanged"
+                       android:accessibilityFeedbackType="feedbackGeneric"
+                       android:accessibilityFlags="flagRequestFilterKeyEvents"
+                       android:canRetrieveWindowContent="true"
+                       android:description="@string/description"
+                       android:notificationTimeout="100"
+                       android:canRequestFilterKeyEvents="true"
+                       android:packageNames="com.tencent.mobileqq"/&gt;
+</pre></div></div>
+<p>3.编写AccessibilityService类监听无障碍服务</p>
+<div class="white"><div class="highlight"><pre>public class AutoOperator extends AccessibilityService {
+
+    private Timer timer;
+    private AccessibilityNodeInfo root;
+    private List&lt;AccessibilityNodeInfo&gt; nodes;
+    private List&lt;AccessibilityNodeInfo&gt; nodes2;
+    private boolean clickTag = false;
+
+    @Override
+    public void onServiceConnected() {
+        //监听无障碍功能开启的按钮
+        Intent intent = new Intent(AutoOperator.this, ZanActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        //跳转到点赞页面
+    }
+
+    @Override
+    public void onAccessibilityEvent(AccessibilityEvent event) {
+//当点赞功能打开时，执行点赞
+        if(SharePreferenceUtil.getBoolean(getApplicationContext(),"OPEN_ZAN")){
+            if ("com.tencent.mobileqq.activity.FriendProfileCardActivity".equals(event.getClassName().toString())) {
+                root = getRootInActiveWindow();
+                if (root != null) {
+                    clickTag = false;
+                    timer = new Timer();
+                    timer.schedule(new FindTask(), 1000);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onInterrupt() {
+
+    }
+
+    private class FindTask extends TimerTask {
+        @Override
+        public void run() {
+            nodes = root.findAccessibilityNodeInfosByText("点击可赞");
+//通过寻找"点击可赞"，找到点赞按钮，并执行点赞功能
+            if(nodes!=null&amp;&amp;nodes.size()&gt;0){
+                for (int i = 0; i &lt; nodes.size(); i++) {
+                    for (int j = 0; j &lt; 10; j++) {
+                        AccessibilityNodeInfo accessibilityNodeInfo = nodes.get(i);
+                        if(accessibilityNodeInfo!=null){
+                            accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            clickTag = true;
+                        }
+                    }
+                }
+            }
+
+            if(clickTag){
+                EventBus.getDefault().post(new PayIsOk(true));
+            }else {
+                EventBus.getDefault().post(new PayIsOk(false));
+            }
+//点赞成功时，向外部发送点赞成功消息
+            timer.schedule(new BackTask(), 500);
+        }
+    }
+//通过寻找"返回"节点，找到返回按钮，回到app
+    private class BackTask extends TimerTask {
+        @Override
+        public void run() {
+            nodes2 = root.findAccessibilityNodeInfosByText("返回");
+            if(nodes2!=null&amp;&amp;nodes2.size()&gt;0){
+                for (int k = 0; k &lt; nodes2.size(); k++) {
+                    AccessibilityNodeInfo accessibilityNodeInfo = nodes2.get(k);
+                    if(accessibilityNodeInfo!=null){
+                        accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    }
+                }
+
+            }
+
+        }
+    }
+}
+</pre></div></div>
+<p>4.在点赞页面发送点赞消息，以及处理下一次点赞功能
+执行点赞</p>
+<div class="white"><div class="highlight"><pre>Intent paramIntent = new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("mqqapi://card/show_pslcard?src_type=internal&amp;version=1&amp;uin="
+                                + "需要点赞的QQ号" + "&amp;card_type=person&amp;source=qrcode"));
+                startActivity(paramIntent);
+</pre></div></div></div><div class='title'>Nginx</div><div class='content'><p>tomcat 代理设置</p>
+<div class="white"><div class="highlight"><pre>server {
+        listen       80;   #监听的端口号
+        server_name  mx.leduika.com;  
+        location /mengxin{
+            proxy_pass http://mx.leduika.com:8081/mengxin;
+        }
+
+
+    }
+</pre></div></div><div class="white"><div class="highlight"><pre>nginx 配置文件测试:nginx -t;
+nginx 重新加载配置文件: nginx -s reload;
+</pre></div></div></div><div class='title'>git使用小技巧</div><div class='content'><p><a href="https://git-for-windows.github.io/">git下载</a></p>
+
+<p>ssh配置
+ssh-keygen -t rsa -c "你的邮箱<a href="/xx.com" class="gfm gfm-team_member ">@xx_oo </a>"</p>
+
+<p>ssh -T <a href="git@git.oschina.net">git@git.oschina.net</a> 确认连接状态</p>
+
+<p>git push origin master -u   //获取最新代码</p>
+
+<p>连接远程仓库
+git remote add origin 仓库的地址</p>
+
+<p>查看远程仓库
+git remote -v</p>
+
+<p>删除远程仓库
+git remote rm origin</p>
+
+<p>git config --global user.name "weril"
+git config --global user.email "<a target="_blank" href="werildev@gmail.com">werildev@gmail.com</a>"</p>
+
+<p>创建代码仓库
+切换到项目根目录
+git init //初始化本地仓库</p>
+
+<p>提交本地代码
+git add .</p>
+
+<p>git commit -m "first commit"</p>
+
+<p>忽略文件配置
+/build
+/src/test
+/src/androidTest</p>
+
+<p>查看文件修改情况
+git status</p>
+
+<p>查看所有文件修改内容
+git diff</p>
+
+<p>查看指定文件修改内容
+git diff app/src/main/.../MainActivity.java</p>
+
+<p>撤销修改（针对没有进行add操作的修改）
+git checkout app/src/main/....</p>
+
+<p>撤回提交
+git reset HEAD app/src/main...</p>
+
+<p>查看日志
+git log</p>
+
+<p>查看指定记录
+git log 记录ID -l   (看一行记录)
+git log 记录ID -l -p  (查看具体修改的内容)</p>
+
+<p>查看分支
+git branch
+创建分支
+git branch version1.0
+分支切换
+git checkout 分支名</p>
+
+<p>git checkout master  ---切换到主线分支
+git merge version1.0 ---将version1.0上修改后的代码合并到master主线</p>
+
+<p>git branch -D version1.0 ---删除version1.0分支</p>
+
+<p>git clone 地址   ---下载远程代码</p>
+
+<p>//将本地修改内容同步到远程库
+git push origin master  ---origin指远程库地址  ---master指同步到那个分支</p>
+
+<p>//将远程库同步到本地
+git fetch origin master</p>
+
+<p>//查看远程库修改的内容
+git diff origin/master 
+//将分支修改内容合并到主分支
+git merge origin/master
+//获取远程库最新代码，合并到本地
+git pull origin master</p>
+
+<p>代码提交基础操作流程：
+第一次提交：
+1.在github或者码云创建项目</p>
+
+<p>2.在本地项目根目录打开git 运行  git init
+3.连接远程仓库  git remote add origin 地址
+4.clone远程仓库到本地 git clone origin 地址
+(第二次提交..)
+5.提交代码到本地仓库  git add .
+6.确认提交  git commit -m "提交描述"
+7.提交代码到远程仓库  git push</p>
+
+<p>下载代码执行3、4</p>
+</div><div class='title'>自定义popwindow</div><div class='content'><p>1.编写布局文件</p>
+<div class="white"><div class="highlight"><pre><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+                <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+                <span class="na">android:layout_height=</span><span class="s">"match_parent"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;View</span>
+        <span class="na">android:id=</span><span class="s">"@+id/left_v"</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+        <span class="na">android:background=</span><span class="s">"@color/view_color"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;LinearLayout</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:orientation=</span><span class="s">"vertical"</span>
+        <span class="na">android:layout_centerInParent=</span><span class="s">"true"</span>
+        <span class="na">android:layout_height=</span><span class="s">"wrap_content"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/LinearLayout&gt;</span>
+
+<span class="nt">&lt;/RelativeLayout&gt;</span>
+</pre></div></div>
+<p>2.编写popwindow</p>
+<div class="white"><div class="highlight"><pre>public class ChoosePopWindow implements IPopWindowProtocol, View.OnClickListener {
+
+    private Context mContext;
+    private PopupWindow mPopupWindow;
+    private RelativeLayout yaoqing;
+    private RelativeLayout yaoqing_code;
+    private View mLeftV;
+
+    public ChoosePopWindow(Context context) {
+        mContext = context;
+        initUI();
+    }
+
+    @Override
+    public void initUI() {
+        View convertView = LayoutInflater.from(mContext).inflate(R.layout.choose_pop_view, null);
+        yaoqing = (RelativeLayout) convertView.findViewById(R.id.yaoqing);
+        mLeftV = convertView.findViewById(R.id.left_v);
+
+        yaoqing.setOnClickListener(this);
+        mLeftV.setOnClickListener(this);
+
+        //初始化popwindow
+        mPopupWindow = new PopupWindow(-1, -1);
+        mPopupWindow.setContentView(convertView);
+        mPopupWindow.setFocusable(true);//默认pop的内部控件无法被点击
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setBackgroundDrawable(new ColorDrawable());//点击pop之外的地方让pop消失
+        mPopupWindow.update();
+    }
+
+    @Override
+    public void onShow(View anchor) {
+        if (mPopupWindow != null) {
+            mPopupWindow.showAtLocation(anchor, Gravity.CENTER, 0, 0);
+        }
+    }
+
+    @Override
+    public void onDismiss() {
+        if (mPopupWindow != null &amp;&amp; mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        onDismiss(); //点击任何地方将popwindow隐藏
+        switch (v.getId()) {
+            case R.id.yaoqing://邀请好友成为会员
+                break;
+        }
+    }
+}
+</pre></div></div></div><div class='title'>android</div><div class='content'></div><div class='title'>springboot</div><div class='content'></div><div class='title'>其他</div><div class='content'></div>
+          </div>
+        </div>
+      </div>
+      </div>
+  </div>
+</body>
+</html>
